@@ -1,0 +1,16 @@
+{
+  
+  "linterOptions": {
+    "exclude": [
+      "config/**/*.js",
+      "node_modules/**/*.ts",
+      "src"
+    ],
+    "rules": {
+        "no-console": [false],
+        "no-unused-variable": [false],
+        "quotemark": [false]
+    },
+    "defaultSeverity": "off"
+  }
+}
