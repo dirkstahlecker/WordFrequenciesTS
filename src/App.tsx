@@ -5,6 +5,7 @@ import {observer} from "mobx-react";
 import * as $ from 'jquery';
 // import logo from './logo.svg';
 import * as Modal from 'react-modal';
+import {MarkupUtils} from "./MarkupUtils";
 
 Modal.setAppElement(document.getElementById('root')!!);
 
@@ -49,6 +50,18 @@ export class AppMachine
     this.lastName = $("#lastNameTxt").val() as string;
   }
 
+  private handleModalCloseRequest(): void
+  {
+    if (this.currentName == null)
+    {
+      throw Error("name shouldn't be null");
+    }
+    //take the last name given by the user and insert the proper markup into the box itself
+    const markup: string = MarkupUtils.makeMarkup(this.currentName, this.lastName, this.currentName);
+    this.journalText = this.journalText.substring(0, this.journalText.length - this.currentName.length) + markup;
+    this.currentName = null; //close the modal
+  }
+
   public populateModal(): JSX.Element
   {
     return <div>
@@ -56,35 +69,20 @@ export class AppMachine
       {this.currentName}
       <br />
       <br />
-      Last name: 
+      Last name:&nbsp;
       <input type="text" 
              onChange={() => this.updateLastName()}
              id="lastNameTxt"
       />
+      <button onClick={() => this.handleModalCloseRequest()}>Submit</button>
     </div>;
   }
-
-  @observable
-  public outputText: string = "";
 
   // private legalLetters: string[] = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
   // "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "-", "'", "\""];
 
   private wordSplitCharacters: string [] = [".", ",", "!", " ", "?", ":", ";"];
   // private wordSplitRegex: RegExp = /\.|,|!|\s|\?|:|;/;
- 
-  //On a particular keypress, look at the last name typed and ask for last name
-  @action.bound
-  public onKeyDown(e: React.KeyboardEvent)
-  {
-    let text: string = this.journalText;
-    let lastWord: string = text.substring(text.lastIndexOf(" "), text.length);
-    if (NameReference.isName(lastWord))
-    {
-      //do something with name
-      console.log("IS NAME");
-    }
-  };
 }
 
 export interface AppProps
@@ -131,9 +129,6 @@ export class App extends React.Component<AppProps>
           <br />
           <button>Okay</button>
           <button>Ignore</button>
-          <br />
-          <br />
-          {this.props.machine.outputText}
         </div>
       </span>
     );
