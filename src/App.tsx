@@ -1,10 +1,8 @@
 import * as React from "react";
-// import * as $ from 'jquery';
 import {NameReference} from "./NameReference";
-import {observable, action, runInAction} from "mobx";
+import {observable, action, runInAction, computed} from "mobx";
 import {observer} from "mobx-react";
 import * as $ from 'jquery';
-// import * as Popup from "react-popup";
 // import logo from './logo.svg';
 import * as Modal from 'react-modal';
 
@@ -16,21 +14,21 @@ export class AppMachine
   public journalText: string = "";
 
   @observable
-  public currentName: string = "";
-
-  @observable
-  public allNames: string[] = [];
-
-  @observable
-  public finalText: string = "";
-
-  @observable
-  public modalOpen: boolean = false;
+  public currentName: string | null = null;
 
   @action
-  public setModalOpen(value: boolean): void
+  public setCurrentName(value: string | null): void
   {
-    this.modalOpen = value;
+    this.currentName = value;
+  }
+
+  @observable
+  public lastName: string = "";
+
+  @computed
+  public get showModal(): boolean
+  {
+    return this.currentName != null;
   }
 
   @action
@@ -42,38 +40,30 @@ export class AppMachine
     lastWord = NameReference.cleanWord(lastWord);
     if (NameReference.isName(lastWord))
     {
-        //do something with name
-      console.log("IS NAME");
+      this.currentName = lastWord;
     }
   };
 
-  public populateModal(): React.ReactElement
+  private updateLastName(): void
   {
-    
+    this.lastName = $("#lastNameTxt").val() as string;
   }
 
-  @action.bound
-  public onSubmit():void 
+  public populateModal(): JSX.Element
   {
-    let outputText: string = "";
-    const words: string[] = this.journalText.split(/\s|\.|,/);
-    for (let i: number = 0; i < words.length; i++)
-    {
-      const word: string = words[i];
-      if (NameReference.isName(word))
-      {
-         // this.currentName = word;
-         this.allNames.push(word); //TODO: need to deal with punctuation after sentences (split on punctuation as well as spaces)
-      }
-      else
-      {
-        outputText += word + " ";
-      }
-    }
-    this.finalText = outputText;
-  };
+    return <div>
+      Current name: 
+      {this.currentName}
+      <br />
+      <br />
+      Last name: 
+      <input type="text" 
+             onChange={() => this.updateLastName()}
+             id="lastNameTxt"
+      />
+    </div>;
+  }
 
-  // private buffer: string = "";
   @observable
   public outputText: string = "";
 
@@ -83,51 +73,18 @@ export class AppMachine
   private wordSplitCharacters: string [] = [".", ",", "!", " ", "?", ":", ";"];
   // private wordSplitRegex: RegExp = /\.|,|!|\s|\?|:|;/;
  
-
-  //don't use buffer, but change the text directly with the markup.
-
   //On a particular keypress, look at the last name typed and ask for last name
   @action.bound
   public onKeyDown(e: React.KeyboardEvent)
   {
-    // let text: string = this.journalText.substring(0, this.journalText.length - );
     let text: string = this.journalText;
-    // if (this.wordSplitCharacters.indexOf(e.key) > -1)
-    // {
-      let lastWord: string = text.substring(text.lastIndexOf(" "), text.length);
-      if (NameReference.isName(lastWord))
-      {
-        //do something with name
-        console.log("IS NAME");
-      }
-    // }
-    // if (e.key === "Backspace")
-    // {
-    //   this.buffer = this.buffer.substr(0, this.buffer.length - 2); //remove last character
-    // }
-    // if (this.wordSplitCharacters.indexOf(e.key) > -1) //reset buffer, check for name
-    // {
-    //   if (NameReference.isName(this.buffer)) //its a name, ask for proper markup
-    //   {
-    //     //do alert here and get markup and add it
-    //     this.outputText += this.buffer + e.key;
-    //   }
-    //   else //not a name, just add it
-    //   {
-    //     this.outputText += this.buffer + e.key;
-    //   }
-    //   this.buffer = "";
-    // }
-    // else if (this.legalLetters.indexOf(e.key) < 0)
-    // {
-    //   return;
-    // }
-    // else //just add to buffer
-    // {
-    //   this.buffer += e.key;
-    // }
+    let lastWord: string = text.substring(text.lastIndexOf(" "), text.length);
+    if (NameReference.isName(lastWord))
+    {
+      //do something with name
+      console.log("IS NAME");
+    }
   };
-
 }
 
 export interface AppProps
@@ -147,8 +104,8 @@ export class App extends React.Component<AppProps>
             id="mainApp"
       >
         <Modal
-            isOpen={this.props.machine.modalOpen}
-            onRequestClose={() => this.props.machine.setModalOpen(false)}
+            isOpen={this.props.machine.showModal}
+            onRequestClose={() => this.props.machine.setCurrentName(null)}
             contentLabel="Example Modal"
         >
           {this.props.machine.populateModal()}
@@ -166,8 +123,6 @@ export class App extends React.Component<AppProps>
                     onChange={() => this.props.machine.updateJournalText()}
                     style={{width: "90%", height: "200px"}}
           />
-          <br />
-          <button onClick={this.props.machine.onSubmit}>Submit</button>
         </div>
         <div style={{width: "50%", display: "inline-block", verticalAlign: "top"}}>
           {this.props.machine.currentName}
