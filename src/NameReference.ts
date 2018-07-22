@@ -4,7 +4,13 @@ export class NameReference
 {
     public static isName(word: string): boolean
     {
-        return word in NameReference.listOfNames;
+        word = word.toLowerCase();
+        return NameReference.listOfNames.indexOf(word) > -1;
+    }
+
+    public static cleanWord(word: string): string
+    {
+        return word.replace(/\s/g, "");
     }
 
     public static listOfNames: string[] = [
@@ -15,6 +21,7 @@ export class NameReference
         "damon",
         "liz",
         "lee",
+        "mckenzie",
         "jareth",
         "woodie",
         "june",
