@@ -14,6 +14,7 @@ export class NamePickerModalMachine
     this.lastName = $("#lastNameTxt").val() as string;
   }
 
+  public lastNameTxtInput: any;
 
 }
 
@@ -36,6 +37,11 @@ export class NamePickerModal extends React.Component<NamePickerModalProps>
     }
   };
 
+  componentDidMount()
+  {
+    // this.props.machine.lastNameTxtInput.focus();
+  }
+
   render()
   {
     return (
@@ -54,6 +60,13 @@ export class NamePickerModal extends React.Component<NamePickerModalProps>
                  onChange={() => this.props.machine.updateLastName()}
                  id="lastNameTxt"
                  onKeyDown={this.onModalKeyDown}
+                 ref={(x) => {
+                   this.props.machine.lastNameTxtInput = x;
+                   if (x != null) 
+                   {
+                     this.props.machine.lastNameTxtInput.focus();
+                   }
+                 }}
           />
           <button onClick={this.props.onRequestClose}>Submit</button>
         </div>
