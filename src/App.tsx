@@ -4,8 +4,9 @@ import {observable, action, runInAction, computed} from "mobx";
 import {observer} from "mobx-react";
 import * as $ from 'jquery';
 // import logo from './logo.svg';
-import * as Modal from 'react-modal';
 import {MarkupUtils} from "./MarkupUtils";
+import * as Modal from 'react-modal';
+import {NamePickerModal, NamePickerModalMachine} from "./NamePickerModal";
 
 Modal.setAppElement(document.getElementById('root')!!);
 
@@ -17,19 +18,30 @@ export class AppMachine
   @observable
   public currentName: string | null = null;
 
+  @observable
+  public finalText: string = "";
+
+  public modalObj: NamePickerModal | null;
+
   @action
   public setCurrentName(value: string | null): void
   {
     this.currentName = value;
   }
 
-  @observable
-  public lastName: string = "";
-
   @computed
   public get showModal(): boolean
   {
     return this.currentName != null;
+  }
+
+  public namePickerModalMachine: NamePickerModalMachine = new NamePickerModalMachine();
+
+  @action
+  public createFinalText(): void
+  {
+    const dateStr: string = $("#dateEntry").val() as string;
+    this.finalText = dateStr + ": " + this.journalText;
   }
 
   @action
@@ -45,37 +57,16 @@ export class AppMachine
     }
   };
 
-  private updateLastName(): void
-  {
-    this.lastName = $("#lastNameTxt").val() as string;
-  }
-
-  private handleModalCloseRequest(): void
+  public handleModalCloseRequest(): void
   {
     if (this.currentName == null)
     {
       throw Error("name shouldn't be null");
     }
     //take the last name given by the user and insert the proper markup into the box itself
-    const markup: string = MarkupUtils.makeMarkup(this.currentName, this.lastName, this.currentName);
+    const markup: string = MarkupUtils.makeMarkup(this.currentName, this.namePickerModalMachine.lastName, this.currentName);
     this.journalText = this.journalText.substring(0, this.journalText.length - this.currentName.length) + markup;
     this.currentName = null; //close the modal
-  }
-
-  public populateModal(): JSX.Element
-  {
-    return <div>
-      Current name: 
-      {this.currentName}
-      <br />
-      <br />
-      Last name:&nbsp;
-      <input type="text" 
-             onChange={() => this.updateLastName()}
-             id="lastNameTxt"
-      />
-      <button onClick={() => this.handleModalCloseRequest()}>Submit</button>
-    </div>;
   }
 
   // private legalLetters: string[] = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
@@ -97,17 +88,16 @@ export class App extends React.Component<AppProps>
   {
     return (
       <span style={{width: "100%", height: "100%", display: "inline-block", verticalAlign: "top"}} 
-            // onKeyDown={this.props.machine.onKeyDown}
             tabIndex={0}
             id="mainApp"
       >
-        <Modal
-            isOpen={this.props.machine.showModal}
-            onRequestClose={() => this.props.machine.setCurrentName(null)}
-            contentLabel="Example Modal"
-        >
-          {this.props.machine.populateModal()}
-        </Modal>
+        <NamePickerModal 
+          machine={this.props.machine.namePickerModalMachine}
+          onRequestClose={() => this.props.machine.handleModalCloseRequest()}
+          isOpen={this.props.machine.showModal}
+          currentName={this.props.machine.currentName == null ? "" : this.props.machine.currentName}
+          ref={(x) => this.props.machine.modalObj = x}
+        />
         <div style={{width: "50%", display: "inline-block", verticalAlign: "top"}}>
           <label htmlFor="dateEntry">Date: </label>
           <br />
@@ -121,14 +111,11 @@ export class App extends React.Component<AppProps>
                     onChange={() => this.props.machine.updateJournalText()}
                     style={{width: "90%", height: "200px"}}
           />
+          <br />
+          <button onClick={() => this.props.machine.createFinalText()}>Submit</button>
         </div>
         <div style={{width: "50%", display: "inline-block", verticalAlign: "top"}}>
-          {this.props.machine.currentName}
-          <br />
-          Last name: 
-          <br />
-          <button>Okay</button>
-          <button>Ignore</button>
+          {this.props.machine.finalText}
         </div>
       </span>
     );
@@ -136,3 +123,8 @@ export class App extends React.Component<AppProps>
 }
 
 export default App;
+
+
+/*
+newlines aren't respected in final text
+*/
