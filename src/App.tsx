@@ -50,10 +50,15 @@ export class AppMachine
 
     let text: string = this.journalText;
     let lastWord: string = text.substring(text.lastIndexOf(" "), text.length);
-    lastWord = NameReference.cleanWord(lastWord);
-    if (NameReference.isName(lastWord))
+
+    //names must be preceeded by a space and followed by a word split character
+    if (this.wordSplitCharacters.indexOf(lastWord.substring(lastWord.length - 1, lastWord.length)) > -1) //last character is a word split character
     {
-      this.currentName = lastWord;
+      lastWord = NameReference.cleanWord(lastWord.substring(0, lastWord.length - 1)); //remove the final character to get just the name
+      if (NameReference.isName(lastWord))
+      {
+        this.currentName = lastWord;
+      }
     }
   };
 
@@ -65,7 +70,10 @@ export class AppMachine
     }
     //take the last name given by the user and insert the proper markup into the box itself
     const markup: string = MarkupUtils.makeMarkup(this.currentName, this.namePickerModalMachine.lastName, this.currentName);
-    this.journalText = this.journalText.substring(0, this.journalText.length - this.currentName.length) + markup;
+    const textLen: number = this.journalText.length;
+    const previousJournalText: string = this.journalText;
+    //add the markup in place of the name
+    this.journalText = previousJournalText.substring(0, textLen - this.currentName.length - 1) + markup +  previousJournalText.substring(textLen - 1, textLen);
     this.currentName = null; //close the modal
   }
 
@@ -126,5 +134,14 @@ export default App;
 
 
 /*
-newlines aren't respected in final text
+BUGS
+-newlines aren't respected in final text
+-have to write in chonological order - can't jump around with names, since they only add to end
+-need to have a story for name picker cancel
+-name maching happens immediately and picks up initial substrings (ari in aric for example) - maybe trigger on word split character instead
+-name matching doesn't work on the first character of a line 
+
+
+FEATURES
+-
 */
