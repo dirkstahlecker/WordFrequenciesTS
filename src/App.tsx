@@ -49,7 +49,19 @@ export class AppMachine
     this.journalText = $("#journalEntry").val() as string;
 
     let text: string = this.journalText;
-    let lastWord: string = text.substring(text.lastIndexOf(" "), text.length);
+    let lastWord: string;
+    let lastCharacter: string = text.substring(text.length - 1, text.length);
+    if (lastCharacter === " ")
+    {
+      text = text.substring(0, text.length - 1); //remove trailing space
+      lastWord = text.substring(text.lastIndexOf(" "), text.length);
+      lastWord = lastWord + " "; //add space back in for the rest of the logic to work properly
+    }
+    else
+    {
+      lastWord = text.substring(text.lastIndexOf(" "), text.length);
+    }
+    
 
     //names must be preceeded by a space and followed by a word split character
     if (this.wordSplitCharacters.indexOf(lastWord.substring(lastWord.length - 1, lastWord.length)) > -1) //last character is a word split character
@@ -74,13 +86,16 @@ export class AppMachine
     const previousJournalText: string = this.journalText;
     //add the markup in place of the name
     this.journalText = previousJournalText.substring(0, textLen - this.currentName.length - 1) + markup +  previousJournalText.substring(textLen - 1, textLen);
+
+    //clean up
     this.currentName = null; //close the modal
+    this.namePickerModalMachine.lastName = ""; //reset
   }
 
   // private legalLetters: string[] = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
   // "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "-", "'", "\""];
 
-  private wordSplitCharacters: string [] = [".", ",", "!", " ", "?", ":", ";"];
+  private wordSplitCharacters: string [] = [".", ",", "!", " ", "?", ":", ";", "\s"];
   // private wordSplitRegex: RegExp = /\.|,|!|\s|\?|:|;/;
 }
 
@@ -138,8 +153,8 @@ BUGS
 -newlines aren't respected in final text
 -have to write in chonological order - can't jump around with names, since they only add to end
 -need to have a story for name picker cancel
--name maching happens immediately and picks up initial substrings (ari in aric for example) - maybe trigger on word split character instead
--name matching doesn't work on the first character of a line 
+-name matching doesn't work on the first character of a line - probably due to looking for space before 
+-modal doesn't trigger on space
 
 
 FEATURES

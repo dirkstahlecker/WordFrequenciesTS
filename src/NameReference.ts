@@ -34,6 +34,7 @@ export class NameReference
         "kort",
         "julia",
         "austin",
+        "janelle",
         "madison",
         "ryan",
         "tess",
