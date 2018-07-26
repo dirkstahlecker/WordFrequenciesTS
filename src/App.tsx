@@ -41,7 +41,7 @@ export class AppMachine
   public createFinalText(): void
   {
     const dateStr: string = $("#dateEntry").val() as string;
-    this.finalText = dateStr + ": " + this.journalText;
+    this.finalText = dateStr + ": " + "\n" + this.journalText;
   }
 
   @action
@@ -62,7 +62,6 @@ export class AppMachine
       lastWord = text.substring(text.lastIndexOf(" "), text.length);
     }
     
-
     //names must be preceeded by a space and followed by a word split character
     if (this.wordSplitCharacters.indexOf(lastWord.substring(lastWord.length - 1, lastWord.length)) > -1) //last character is a word split character
     {
@@ -137,7 +136,7 @@ export class App extends React.Component<AppProps>
           <br />
           <button onClick={() => this.props.machine.createFinalText()}>Submit</button>
         </div>
-        <div style={{width: "50%", display: "inline-block", verticalAlign: "top"}}>
+        <div style={{width: "50%", display: "inline-block", verticalAlign: "top", whiteSpace: "pre-wrap"}}>
           {this.props.machine.finalText}
         </div>
       </span>
