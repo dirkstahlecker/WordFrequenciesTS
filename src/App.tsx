@@ -54,12 +54,12 @@ export class AppMachine
     if (lastCharacter === " ")
     {
       text = text.substring(0, text.length - 1); //remove trailing space
-      lastWord = text.substring(text.lastIndexOf(" "), text.length);
+      lastWord = text.substring(Math.max(text.lastIndexOf(" "), text.lastIndexOf("\n")), text.length);
       lastWord = lastWord + " "; //add space back in for the rest of the logic to work properly
     }
     else
     {
-      lastWord = text.substring(text.lastIndexOf(" "), text.length);
+      lastWord = text.substring(Math.max(text.lastIndexOf(" "), text.lastIndexOf("\n")), text.length);
     }
     
     //names must be preceeded by a space and followed by a word split character
@@ -94,7 +94,7 @@ export class AppMachine
   // private legalLetters: string[] = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
   // "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "-", "'", "\""];
 
-  private wordSplitCharacters: string [] = [".", ",", "!", " ", "?", ":", ";", "\s"];
+  private wordSplitCharacters: string [] = [".", ",", "!", " ", "?", ":", ";", "\s", "\n"];
   // private wordSplitRegex: RegExp = /\.|,|!|\s|\?|:|;/;
 }
 
@@ -149,11 +149,9 @@ export default App;
 
 /*
 BUGS
--newlines aren't respected in final text
 -have to write in chonological order - can't jump around with names, since they only add to end
 -need to have a story for name picker cancel
 -name matching doesn't work on the first character of a line - probably due to looking for space before 
--modal doesn't trigger on space
 
 
 FEATURES
