@@ -7,6 +7,7 @@ import * as $ from 'jquery';
 import {MarkupUtils} from "./MarkupUtils";
 import * as Modal from 'react-modal';
 import {NamePickerModal, NamePickerModalMachine} from "./NamePickerModal";
+import {AddMarkupToExistingEntry, AddMarkupMachine} from "./AddMarkupToExistingEntry";
 
 Modal.setAppElement(document.getElementById('root')!!);
 
@@ -21,7 +22,12 @@ export class AppMachine
   @observable
   public finalText: string = "";
 
+  @observable
+  public newJournalEntry: boolean = true;
+
   public modalObj: NamePickerModal | null;
+
+  public addMarkupMachine: AddMarkupMachine = new AddMarkupMachine();
 
   @action
   public setCurrentName(value: string | null): void
@@ -94,7 +100,7 @@ export class AppMachine
   // private legalLetters: string[] = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
   // "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "-", "'", "\""];
 
-  private wordSplitCharacters: string [] = [".", ",", "!", " ", "?", ":", ";", "\s", "\n"];
+  private wordSplitCharacters: string [] = [".", ",", "!", " ", "?", ":", ";", "\s", "\n"]; //TODO: this is copied, make it static somehow
   // private wordSplitRegex: RegExp = /\.|,|!|\s|\?|:|;/;
 }
 
@@ -120,21 +126,36 @@ export class App extends React.Component<AppProps>
           currentName={this.props.machine.currentName == null ? "" : this.props.machine.currentName}
           ref={(x) => this.props.machine.modalObj = x}
         />
+        <button onClick={() => runInAction(() => this.props.machine.newJournalEntry = !this.props.machine.newJournalEntry)}>
+          {this.props.machine.newJournalEntry ? "Add markup to existing entry" : "Create new journal entry"}
+        </button>
+        <br />
+        <br />
         <div style={{width: "50%", display: "inline-block", verticalAlign: "top"}}>
-          <label htmlFor="dateEntry">Date: </label>
-          <br />
-          <input type="text" id="dateEntry" />
-          <br />
-          <br />
-          <label htmlFor="journalEntry">Entry: </label>
-          <br />
-          <textarea id="journalEntry" 
-                    value={this.props.machine.journalText} 
-                    onChange={() => this.props.machine.updateJournalText()}
-                    style={{width: "90%", height: "200px"}}
-          />
-          <br />
-          <button onClick={() => this.props.machine.createFinalText()}>Submit</button>
+          {
+            this.props.machine.newJournalEntry &&
+            <>
+              <label htmlFor="dateEntry">Date: </label>
+              <br />
+              <input type="text" id="dateEntry" />
+              <br />
+              <br />
+              <label htmlFor="journalEntry">Entry: </label>
+              <br />
+              <textarea id="journalEntry" 
+                        value={this.props.machine.journalText} 
+                        onChange={() => this.props.machine.updateJournalText()}
+                        style={{width: "90%", height: "200px"}}
+              />
+              <br />
+              <button onClick={() => this.props.machine.createFinalText()}>Submit</button>
+            </>
+          }
+          {
+            !this.props.machine.newJournalEntry &&
+            <AddMarkupToExistingEntry machine={this.props.machine.addMarkupMachine} />
+          }
+
         </div>
         <div style={{width: "50%", display: "inline-block", verticalAlign: "top", whiteSpace: "pre-wrap"}}>
           {this.props.machine.finalText}

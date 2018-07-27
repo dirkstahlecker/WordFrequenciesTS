@@ -24,6 +24,7 @@ export interface NamePickerModalProps
   onRequestClose: () => void;
   isOpen: boolean;
   currentName: string;
+  context?: string;
 }
 
 @observer
@@ -55,6 +56,14 @@ export class NamePickerModal extends React.Component<NamePickerModalProps>
           {this.props.currentName}
           <br />
           <br />
+          {
+            this.props.context !== undefined &&
+            <>
+              <div>this.props.context</div>
+              <br />
+              <br />
+            </>
+          }
           Last name:&nbsp;
           <input type="text" 
                  onChange={() => this.props.machine.updateLastName()}
