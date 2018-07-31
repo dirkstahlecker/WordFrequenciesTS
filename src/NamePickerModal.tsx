@@ -8,13 +8,21 @@ export class NamePickerModalMachine
 {  
   @observable
   public lastName: string = "";
+  @observable
+  public displayName: string = "";
 
   public updateLastName(): void
   {
     this.lastName = $("#lastNameTxt").val() as string;
   }
 
+  public updateDisplayName(): void
+  {
+    this.displayName = $("#displayNameTxt").val() as string;
+  }
+
   public lastNameTxtInput: any;
+  public displayNameTxtInput: any;
 
 }
 
@@ -24,7 +32,7 @@ export interface NamePickerModalProps
   onRequestClose: () => void;
   isOpen: boolean;
   currentName: string;
-  context?: string;
+  context?: string; //currently unused, probably won't ever be used
 }
 
 @observer
@@ -77,6 +85,19 @@ export class NamePickerModal extends React.Component<NamePickerModalProps>
                    }
                  }}
           />
+          <br />
+          <br />
+          Display Name:&nbsp;
+          <input type="text" 
+                 onChange={() => this.props.machine.updateDisplayName()}
+                 id="displayNameTxt"
+                 onKeyDown={this.onModalKeyDown}
+                 ref={(x) => {
+                   this.props.machine.displayNameTxtInput = x;
+                 }}
+          />
+          <br />
+          <br />
           <button onClick={this.props.onRequestClose}>Submit</button>
         </div>
       </Modal>

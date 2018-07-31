@@ -5,12 +5,19 @@ import * as $ from 'jquery';
 import {NameReference} from "./NameReference";
 import {NamePickerModal, NamePickerModalMachine} from "./NamePickerModal";
 import {MarkupUtils} from "./MarkupUtils";
+import * as Modal from 'react-modal';
 
 export class AddMarkupMachine
 {
-  static wordSplitCharacters: string [] = [".", ",", "!", " ", "?", ":", ";", "\s", "\n"];
+  public static get wordSplitCharacters(): string[]
+  {
+    return [".", ",", "!", " ", "?", ":", ";", "\n", "'"];
+  }
 
   public namePickerModalMachine: NamePickerModalMachine = new NamePickerModalMachine();
+
+  @observable
+  public modalResponse: string | null = null;
 
   @observable
   public currentName: string | null = null
@@ -39,7 +46,7 @@ export class AddMarkupMachine
   }
 
   @action.bound
-  public startNameSearch(): void
+  public async startNameSearch(): Promise<void>
   {
     // let words: string[] = this.oldEntryText.split(/\s|\.|,|:/);
     // console.log(words);
@@ -56,9 +63,16 @@ export class AddMarkupMachine
         if (NameReference.isName(word))
         {
           //show modal
-          //TODO
-          console.log(word);
-          this.currentName = word;
+          this.modalResponse = null;
+          this.currentName = word; //shows modal
+
+          const modalPromise = new Promise((resolve, reject) => this.modalResponse != null)
+          await modalPromise;
+
+          // this.promiseModal().then(() => console.log("After modal"));
+
+          outputText += this.modalResponse;
+          console.log(outputText);
         }
         else
         {
@@ -73,8 +87,8 @@ export class AddMarkupMachine
     }
   }
 
-  public handleModalCloseRequest(): void
-  {
+  @action
+  public handleModalCloseRequest = async(): Promise<void> => {
     if (this.currentName == null)
     {
       throw Error("name shouldn't be null");
@@ -88,6 +102,22 @@ export class AddMarkupMachine
 
     //clean up
     this.currentName = null; //close the modal
+
+    this.modalResponse = markup; //triggers the user has submitted the last name
+    return Promise.resolve();
+  };
+
+  private promiseModal(): Promise<boolean>
+  {
+    return new Promise((resolve, reject) => {
+      <Modal 
+        isOpen={true}
+        onRequestClose={() => resolve(true)}
+        contentLabel="Example Modal"
+      >
+        TEST
+      </Modal>
+    });
   }
 }
 
@@ -99,6 +129,10 @@ export interface AddMarkupProps
 @observer
 export class AddMarkupToExistingEntry extends React.Component<AddMarkupProps>
 {
+
+
+
+
   render()
   {
     return <div>
@@ -107,7 +141,6 @@ export class AddMarkupToExistingEntry extends React.Component<AddMarkupProps>
         onRequestClose={() => this.props.machine.handleModalCloseRequest()}
         isOpen={this.props.machine.currentName != null}
         currentName={this.props.machine.currentName == null ? "" : this.props.machine.currentName}
-
       />
       Paste old entry here:<br />
       <textarea id="oldEntry" 

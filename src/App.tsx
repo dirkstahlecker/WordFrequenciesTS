@@ -69,7 +69,7 @@ export class AppMachine
     }
     
     //names must be preceeded by a space and followed by a word split character
-    if (this.wordSplitCharacters.indexOf(lastWord.substring(lastWord.length - 1, lastWord.length)) > -1) //last character is a word split character
+    if (AddMarkupMachine.wordSplitCharacters.indexOf(lastWord.substring(lastWord.length - 1, lastWord.length)) > -1) //last character is a word split character
     {
       lastWord = NameReference.cleanWord(lastWord.substring(0, lastWord.length - 1)); //remove the final character to get just the name
       if (NameReference.isName(lastWord))
@@ -86,7 +86,8 @@ export class AppMachine
       throw Error("name shouldn't be null");
     }
     //take the last name given by the user and insert the proper markup into the box itself
-    const markup: string = MarkupUtils.makeMarkup(this.currentName, this.namePickerModalMachine.lastName, this.currentName);
+    let displayName: string | null = this.namePickerModalMachine.displayName;
+    const markup: string = MarkupUtils.makeMarkup(this.currentName, this.namePickerModalMachine.lastName, displayName != null ? displayName : this.currentName);
     const textLen: number = this.journalText.length;
     const previousJournalText: string = this.journalText;
     //add the markup in place of the name
@@ -100,7 +101,7 @@ export class AppMachine
   // private legalLetters: string[] = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
   // "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "-", "'", "\""];
 
-  private wordSplitCharacters: string [] = [".", ",", "!", " ", "?", ":", ";", "\s", "\n"]; //TODO: this is copied, make it static somehow
+  // private wordSplitCharacters: string [] = [".", ",", "!", " ", "?", ":", ";", "\n"]; //TODO: this is copied, make it static somehow
   // private wordSplitRegex: RegExp = /\.|,|!|\s|\?|:|;/;
 }
 
@@ -172,7 +173,8 @@ export default App;
 BUGS
 -have to write in chonological order - can't jump around with names, since they only add to end
 -need to have a story for name picker cancel
--name matching doesn't work on the first character of a line - probably due to looking for space before 
+-deal with aprostophes
+-case sensitive (name popup only when name is capitalized) - or maybe only for particular names that are also common words (will)
 
 
 FEATURES
