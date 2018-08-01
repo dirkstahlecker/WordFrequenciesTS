@@ -68,7 +68,7 @@ export class AppMachine
       lastWord = text.substring(Math.max(text.lastIndexOf(" "), text.lastIndexOf("\n")), text.length);
     }
     
-    //names must be preceeded by a space and followed by a word split character
+    //names must be preceeded by a space or newline and followed by a word split character
     if (AddMarkupMachine.wordSplitCharacters.indexOf(lastWord.substring(lastWord.length - 1, lastWord.length)) > -1) //last character is a word split character
     {
       lastWord = NameReference.cleanWord(lastWord.substring(0, lastWord.length - 1)); //remove the final character to get just the name
@@ -79,8 +79,13 @@ export class AppMachine
     }
   };
 
-  public handleModalCloseRequest(): void
+  public handleModalCloseRequest(commit: boolean): void
   {
+    if (!commit) //close without adding markup
+    {
+      this.currentName = null;
+      return;
+    }
     if (this.currentName == null)
     {
       throw Error("name shouldn't be null");
@@ -96,13 +101,11 @@ export class AppMachine
     //clean up
     this.currentName = null; //close the modal
     this.namePickerModalMachine.lastName = ""; //reset
+    this.namePickerModalMachine.displayName = null;
   }
 
   // private legalLetters: string[] = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
   // "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "-", "'", "\""];
-
-  // private wordSplitCharacters: string [] = [".", ",", "!", " ", "?", ":", ";", "\n"]; //TODO: this is copied, make it static somehow
-  // private wordSplitRegex: RegExp = /\.|,|!|\s|\?|:|;/;
 }
 
 export interface AppProps
@@ -122,7 +125,7 @@ export class App extends React.Component<AppProps>
       >
         <NamePickerModal 
           machine={this.props.machine.namePickerModalMachine}
-          onRequestClose={() => this.props.machine.handleModalCloseRequest()}
+          onRequestClose={(commit: boolean) => this.props.machine.handleModalCloseRequest(commit)}
           isOpen={this.props.machine.showModal}
           currentName={this.props.machine.currentName == null ? "" : this.props.machine.currentName}
           ref={(x) => this.props.machine.modalObj = x}
@@ -173,7 +176,6 @@ export default App;
 BUGS
 -have to write in chonological order - can't jump around with names, since they only add to end
 -need to have a story for name picker cancel
--deal with aprostophes
 -case sensitive (name popup only when name is capitalized) - or maybe only for particular names that are also common words (will)
 
 

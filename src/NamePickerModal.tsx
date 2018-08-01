@@ -9,7 +9,7 @@ export class NamePickerModalMachine
   @observable
   public lastName: string = "";
   @observable
-  public displayName: string = "";
+  public displayName: string | null = null;
 
   public updateLastName(): void
   {
@@ -29,7 +29,7 @@ export class NamePickerModalMachine
 export interface NamePickerModalProps
 {
   machine: NamePickerModalMachine;
-  onRequestClose: () => void;
+  onRequestClose: (commit: boolean) => void;
   isOpen: boolean;
   currentName: string;
   context?: string; //currently unused, probably won't ever be used
@@ -42,7 +42,11 @@ export class NamePickerModal extends React.Component<NamePickerModalProps>
     if (e.key === "Enter")
     {
       e.preventDefault();
-      this.props.onRequestClose();
+      this.props.onRequestClose(true);
+    }
+    if (e.key === "Escape")
+    {
+      this.props.onRequestClose(false);
     }
   };
 
@@ -56,8 +60,9 @@ export class NamePickerModal extends React.Component<NamePickerModalProps>
     return (
       <Modal 
         isOpen={this.props.isOpen}
-        onRequestClose={this.props.onRequestClose}
+        
         contentLabel="Example Modal"
+
       >
         <div>
           Current name:&nbsp;
@@ -98,7 +103,7 @@ export class NamePickerModal extends React.Component<NamePickerModalProps>
           />
           <br />
           <br />
-          <button onClick={this.props.onRequestClose}>Submit</button>
+          <button onClick={() => this.props.onRequestClose(true)}>Submit</button>
         </div>
       </Modal>
       );
