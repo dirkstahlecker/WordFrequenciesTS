@@ -9,20 +9,26 @@ export class NamePickerModalMachine
   @observable
   public lastName: string = "";
   @observable
-  public displayName: string | null = null;
+  public realFirstName: string | null = null;
+  @observable
+  public submitClicked: boolean = false;
+
+  public setSubmitClicked = (value: boolean): void => {
+    this.submitClicked = value;
+  }
 
   public updateLastName(): void
   {
     this.lastName = $("#lastNameTxt").val() as string;
   }
 
-  public updateDisplayName(): void
+  public updateRealFirstName(): void
   {
-    this.displayName = $("#displayNameTxt").val() as string;
+    this.realFirstName = $("#realFirstNameTxt").val() as string;
   }
 
   public lastNameTxtInput: any;
-  public displayNameTxtInput: any;
+  public realFirstNameTxtInput: any;
 
 }
 
@@ -42,6 +48,7 @@ export class NamePickerModal extends React.Component<NamePickerModalProps>
     if (e.key === "Enter")
     {
       e.preventDefault();
+      this.props.machine.setSubmitClicked(true);
       this.props.onRequestClose(true);
     }
     if (e.key === "Escape")
@@ -92,18 +99,21 @@ export class NamePickerModal extends React.Component<NamePickerModalProps>
           />
           <br />
           <br />
-          Display Name:&nbsp;
+          Real First Name:&nbsp;
           <input type="text" 
-                 onChange={() => this.props.machine.updateDisplayName()}
-                 id="displayNameTxt"
+                 onChange={() => this.props.machine.updateRealFirstName()}
+                 id="realFirstNameTxt"
                  onKeyDown={this.onModalKeyDown}
                  ref={(x) => {
-                   this.props.machine.displayNameTxtInput = x;
+                   this.props.machine.realFirstNameTxtInput = x;
                  }}
           />
           <br />
           <br />
-          <button onClick={() => this.props.onRequestClose(true)}>Submit</button>
+          <button onClick={() => {
+            this.props.machine.setSubmitClicked(true);
+            this.props.onRequestClose(true)
+          }}>Submit</button>
         </div>
       </Modal>
       );

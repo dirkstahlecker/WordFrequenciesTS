@@ -47,7 +47,7 @@ export class AppMachine
   public createFinalText(): void
   {
     const dateStr: string = $("#dateEntry").val() as string;
-    this.finalText = dateStr + ": " + "\n" + this.journalText;
+    this.finalText = dateStr + ": " + this.journalText;
   }
 
   @action
@@ -91,8 +91,8 @@ export class AppMachine
       throw Error("name shouldn't be null");
     }
     //take the last name given by the user and insert the proper markup into the box itself
-    let displayName: string | null = this.namePickerModalMachine.displayName;
-    const markup: string = MarkupUtils.makeMarkup(this.currentName, this.namePickerModalMachine.lastName, displayName != null ? displayName : this.currentName);
+    let realFirstName: string | null = this.namePickerModalMachine.realFirstName;
+    const markup: string = MarkupUtils.makeMarkup(realFirstName != null ? realFirstName : this.currentName, this.namePickerModalMachine.lastName, this.currentName);
     const textLen: number = this.journalText.length;
     const previousJournalText: string = this.journalText;
     //add the markup in place of the name
@@ -101,7 +101,7 @@ export class AppMachine
     //clean up
     this.currentName = null; //close the modal
     this.namePickerModalMachine.lastName = ""; //reset
-    this.namePickerModalMachine.displayName = null;
+    this.namePickerModalMachine.realFirstName = null;
   }
 
   // private legalLetters: string[] = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
@@ -116,6 +116,35 @@ export interface AppProps
 @observer
 export class App extends React.Component<AppProps>
 {
+  @observable currentMarkupHack: string = "";
+
+  public handleEasyMarkupGeneratorSubmit = (): void => {
+    let firstName: string = $("#firstName").val() as string;
+    let lastName: string = $("#lastName").val() as string;
+    let displayName: string = $("#displayName").val() as string;
+
+    this.currentMarkupHack = MarkupUtils.makeMarkup(firstName, lastName, displayName);
+    $("#placeToSelectText").val(this.currentMarkupHack);
+
+    var copyText = document.getElementById("displayCopyArea") as HTMLElement;
+    this.selectElementContents(copyText);
+    document.execCommand("copy");
+
+    $("#firstName").val("").focus();
+    $("#lastName").val("");
+    $("#displayName").val("");
+
+
+  };
+
+  private selectElementContents(el: any) {
+    var range = document.createRange();
+    range.selectNodeContents(el);
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+
   public render()
   {
     return (
@@ -156,8 +185,27 @@ export class App extends React.Component<AppProps>
             </>
           }
           {
-            !this.props.machine.newJournalEntry &&
-            <AddMarkupToExistingEntry machine={this.props.machine.addMarkupMachine} />
+            !this.props.machine.newJournalEntry && //           {/*<AddMarkupToExistingEntry machine={this.props.machine.addMarkupMachine} />*/}
+            <div onKeyDown={(e: any) => {
+              if (e.key === "Enter")
+              {
+                e.preventDefault();
+                this.handleEasyMarkupGeneratorSubmit();
+              }
+            }}>
+              First Name: <input type="text" id="firstName" autoFocus={true}/>
+              <br />
+              Last Name: <input type="text" id="lastName" />
+              <br />
+              Display Name: <input type="text" id="displayName" />
+              <br />
+              <button onClick={this.handleEasyMarkupGeneratorSubmit}>Submit</button>
+              <br />
+              <br />
+              <div id="displayCopyArea">
+                <input id="placeToSelectText" />
+              </div>
+            </div>
           }
 
         </div>

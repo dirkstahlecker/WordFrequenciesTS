@@ -45,12 +45,20 @@ export class AddMarkupMachine
     return outputStr;
   }
 
+  private checkerFunction = (): boolean => {
+    if (this.namePickerModalMachine.submitClicked)
+    {
+      
+    }
+    return false;
+  }
+
   @action.bound
-  public async startNameSearch(): Promise<void>
+  public async startNameSearch(outputText_in: string = ""): Promise<void>
   {
     // let words: string[] = this.oldEntryText.split(/\s|\.|,|:/);
     // console.log(words);
-    let outputText: string = "";
+    let outputText: string = outputText_in;
     let currentWord: string = "";
 
     for (let i: number = 0; i < this.oldEntryText.length; i++)
@@ -66,13 +74,17 @@ export class AddMarkupMachine
           this.modalResponse = null;
           this.currentName = word; //shows modal
 
-          const modalPromise = new Promise((resolve, reject) => this.modalResponse != null)
-          await modalPromise;
+          const modalPromise: Promise<void> = new Promise(res => setTimeout(this.checkerFunction, 100));
+          return modalPromise;
+
+          // const modalPromise = new Promise((resolve, reject) => this.modalResponse != null)
+          // await modalPromise;
 
           // this.promiseModal().then(() => console.log("After modal"));
 
           outputText += this.modalResponse;
           console.log(outputText);
+          // return this.startNameSearch(outputText);
         }
         else
         {
@@ -107,18 +119,18 @@ export class AddMarkupMachine
     return Promise.resolve();
   };
 
-  private promiseModal(): Promise<boolean>
-  {
-    return new Promise((resolve, reject) => {
-      <Modal 
-        isOpen={true}
-        onRequestClose={() => resolve(true)}
-        contentLabel="Example Modal"
-      >
-        TEST
-      </Modal>
-    });
-  }
+  // private promiseModal(): Promise<boolean>
+  // {
+  //   return new Promise((resolve, reject) => {
+  //     <Modal 
+  //       isOpen={true}
+  //       onRequestClose={() => resolve(true)}
+  //       contentLabel="Example Modal"
+  //     >
+  //       TEST
+  //     </Modal>
+  //   });
+  // }
 }
 
 export interface AddMarkupProps
@@ -129,8 +141,6 @@ export interface AddMarkupProps
 @observer
 export class AddMarkupToExistingEntry extends React.Component<AddMarkupProps>
 {
-
-
 
 
   render()

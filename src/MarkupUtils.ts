@@ -2,9 +2,9 @@
 
 export class MarkupUtils
 {
-    public static makeMarkup(firstName: string, lastName: string, displayName: string): string
+    public static makeMarkup(firstName: string, lastName: string, displayName: string = ""): string
     {
-        return "[!!" + displayName + "|" + firstName + "_" + lastName + "!!]";
+        return "[!!" + (displayName === "" ? firstName : displayName) + "|" + firstName + "_" + lastName + "!!]";
     }
 }
 

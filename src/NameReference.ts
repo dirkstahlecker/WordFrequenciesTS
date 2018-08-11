@@ -24,6 +24,7 @@ export class NameReference
         "mckenzie",
         "jareth",
         "woodie",
+        "rob",
         "june",
         "federico",
         "ariel",
@@ -322,14 +323,18 @@ export class NameReference
         "kathryn",
         "will",
         "max",
+        "garth",
         "yuliya",
+        "victor",
         "ceri",
         "kaytlyn",
         "dominic",
         "robin",
         "ishaan",
         "veronica",
+        "richard",
         "nika",
+        "rich",
         "carlson",
         "tevis",
         "audrey",
@@ -455,12 +460,14 @@ export class NameReference
         "barry",
         "sue",
         "lucia",
+        "chun-lok",
         "gray",
         "william",
         "evan",
         "kory",
         "stan",
         "lane",
+        "maegan",
         "jade",
         "natalie",
         "tanner",
@@ -483,3 +490,7 @@ export class NameReference
 }
 
 export default NameReference;
+
+
+//TOOD: how to deal with people that get married and change their names?
+//deal with adults with titles ("Mrs. Margulieux")
