@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@types/draft-js": "^0.10.24",
     "@types/react-modal": "^3.2.0",
+    "draft-js": "^0.10.5",
     "jquery": "^3.3.1",
     "mobx": "^5.0.3",
     "mobx-react": "^5.2.3",

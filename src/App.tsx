@@ -8,6 +8,7 @@ import {MarkupUtils} from "./MarkupUtils";
 import * as Modal from 'react-modal';
 import {NamePickerModal, NamePickerModalMachine} from "./NamePickerModal";
 import {AddMarkupToExistingEntry, AddMarkupMachine} from "./AddMarkupToExistingEntry";
+import {Editor, EditorState} from 'draft-js';
 
 Modal.setAppElement(document.getElementById('root')!!);
 
@@ -175,11 +176,12 @@ export class App extends React.Component<AppProps>
               <br />
               <label htmlFor="journalEntry">Entry: </label>
               <br />
-              <textarea id="journalEntry" 
+{/*              <textarea id="journalEntry" 
                         value={this.props.machine.journalText} 
                         onChange={() => this.props.machine.updateJournalText()}
                         style={{width: "90%", height: "200px"}}
-              />
+              />*/}
+              <MyEditor />
               <br />
               <button onClick={() => this.props.machine.createFinalText()}>Submit</button>
             </>
@@ -213,6 +215,36 @@ export class App extends React.Component<AppProps>
           {this.props.machine.finalText}
         </div>
       </span>
+    );
+  }
+}
+
+interface EditorProps
+{
+
+}
+
+@observer
+class MyEditor extends React.Component<EditorProps>
+{
+  @observable editorState = EditorState.createEmpty();
+
+  constructor(props: EditorProps)
+  {
+    super(props);
+    // this.state = {editorState: EditorState.createEmpty()};
+    // this.onChange = (editorState) => this.setState({editorState});
+  }
+
+  @action
+  private onChange = (editorState: any): void => {
+    this.editorState = editorState;
+  }
+
+  public render() 
+  {
+    return (
+        <Editor editorState={this.editorState} onChange={this.onChange} />
     );
   }
 }
