@@ -176,12 +176,12 @@ export class App extends React.Component<AppProps>
               <br />
               <label htmlFor="journalEntry">Entry: </label>
               <br />
-{/*              <textarea id="journalEntry" 
+              <textarea id="journalEntry" 
                         value={this.props.machine.journalText} 
                         onChange={() => this.props.machine.updateJournalText()}
                         style={{width: "90%", height: "200px"}}
-              />*/}
-              <MyEditor />
+              />
+              {/*<MyEditor />*/}
               <br />
               <button onClick={() => this.props.machine.createFinalText()}>Submit</button>
             </>
