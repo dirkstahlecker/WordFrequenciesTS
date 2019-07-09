@@ -3,14 +3,22 @@ import {NameReference} from "./NameReference";
 import {observable, action, runInAction, computed} from "mobx";
 import {observer} from "mobx-react";
 import * as $ from 'jquery';
-// import logo from './logo.svg';
 import {MarkupUtils} from "./MarkupUtils";
+import {JournalReader, JournalReaderMachine} from "./JournalReader";
 import * as Modal from 'react-modal';
 import {NamePickerModal, NamePickerModalMachine} from "./NamePickerModal";
 import {AddMarkupToExistingEntry, AddMarkupMachine} from "./AddMarkupToExistingEntry";
 import {Editor, EditorState} from 'draft-js';
+import axios from 'axios';
 
 Modal.setAppElement(document.getElementById('root')!!);
+
+interface PersonSchema
+{
+  firstName: String,
+  lastName: String,
+  displayName: String
+}
 
 export class AppMachine
 {
@@ -26,9 +34,14 @@ export class AppMachine
   @observable
   public newJournalEntry: boolean = true;
 
+  @observable
+  public showDisplayJournalPlace: boolean = false;
+
   public modalObj: NamePickerModal | null;
 
   public addMarkupMachine: AddMarkupMachine = new AddMarkupMachine();
+
+  public journalReaderMachine: JournalReaderMachine = new JournalReaderMachine();
 
   @action
   public setCurrentName(value: string | null): void
@@ -146,6 +159,19 @@ export class App extends React.Component<AppProps>
     sel.addRange(range);
   }
 
+  private makeRequest()
+  {
+    axios.request<PersonSchema>({
+      url: 'localhost:8765'
+      // transformResponse: (r: PersonSchema) => r.data
+    }).then((response: any) => {
+      // `response` is of type `AxiosResponse<ServerData>`
+      // const { data } = response
+      // `data` is of type ServerData, correctly inferred
+      console.log(response.firstName);
+    })
+  }
+
   public render()
   {
     return (
@@ -160,14 +186,19 @@ export class App extends React.Component<AppProps>
           currentName={this.props.machine.currentName == null ? "" : this.props.machine.currentName}
           ref={(x) => this.props.machine.modalObj = x}
         />
+        <button onClick={() => this.makeRequest()}>TEST</button>
         <button onClick={() => runInAction(() => this.props.machine.newJournalEntry = !this.props.machine.newJournalEntry)}>
           {this.props.machine.newJournalEntry ? "Add markup to existing entry" : "Create new journal entry"}
+        </button>
+        <button onClick={() => runInAction(() => this.props.machine.showDisplayJournalPlace = !this.props.machine.showDisplayJournalPlace)}>
+          Read journal
         </button>
         <br />
         <br />
         <div style={{width: "50%", display: "inline-block", verticalAlign: "top"}}>
           {
-            this.props.machine.newJournalEntry &&
+            this.props.machine.newJournalEntry && 
+            !this.props.machine.showDisplayJournalPlace &&
             <>
               <label htmlFor="dateEntry">Date: </label>
               <br />
@@ -188,6 +219,7 @@ export class App extends React.Component<AppProps>
           }
           {
             !this.props.machine.newJournalEntry && //           {/*<AddMarkupToExistingEntry machine={this.props.machine.addMarkupMachine} />*/}
+            !this.props.machine.showDisplayJournalPlace &&
             <div onKeyDown={(e: any) => {
               if (e.key === "Enter")
               {
@@ -208,6 +240,10 @@ export class App extends React.Component<AppProps>
                 <input id="placeToSelectText" />
               </div>
             </div>
+          }
+          {
+            this.props.machine.showDisplayJournalPlace &&
+            <JournalReader machine={this.props.machine.journalReaderMachine}/>
           }
 
         </div>

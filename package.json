@@ -5,6 +5,7 @@
   "dependencies": {
     "@types/draft-js": "^0.10.24",
     "@types/react-modal": "^3.2.0",
+    "axios": "^0.18.0",
     "bluebird": "^3.5.3",
     "docker": "^1.0.0",
     "draft-js": "^0.10.5",
