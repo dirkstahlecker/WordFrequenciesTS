@@ -16,7 +16,7 @@
     "react-dom": "^16.4.1",
     "react-modal": "^3.5.1",
     "react-popup": "^0.9.3",
-    "react-scripts-ts": "2.16.0",
+    "react-scripts-ts": "4.0.8",
     "reactjs-popup": "^1.1.1",
     "sqlite3": "^4.0.4",
     "start": "^5.1.0"
